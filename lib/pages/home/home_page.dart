@@ -1,0 +1,188 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../utils/auth_service.dart';
+import '../../utils/database.dart';
+import '../../models/poop_model.dart';
+import '../../widgets/poop_card.dart';
+import '../../theme/app_theme.dart';
+import '../poops/add_poop_page.dart';
+import '../rankings/rankings_page.dart';
+
+class HomePage extends StatefulWidget {
+  static const String routeName = '/home';
+
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  int _selectedIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+    final user = authService.currentUser;
+
+    if (user == null) {
+      // This should not happen, but just in case
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Action Tracker'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () => _showLogoutDialog(context),
+          ),
+        ],
+      ),
+      body: _buildBody(user.uid, user.displayName ?? 'User'),
+      floatingActionButton: _selectedIndex == 0
+          ? FloatingActionButton(
+        backgroundColor: AppTheme.primaryColor,
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const AddActionPage(),
+            ),
+          );
+        },
+        child: const Icon(Icons.add),
+      )
+          : null,
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.list),
+            label: 'My Actions',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.leaderboard),
+            label: 'Rankings',
+          ),
+        ],
+        selectedItemColor: AppTheme.primaryColor,
+      ),
+    );
+  }
+
+  Widget _buildBody(String userId, String displayName) {
+    switch (_selectedIndex) {
+      case 0:
+        return _buildMyActions(userId);
+      case 1:
+        return const RankingsPage();
+      default:
+        return _buildMyActions(userId);
+    }
+  }
+
+  Widget _buildMyActions(String userId) {
+    final databaseService = Provider.of<DatabaseService>(context);
+
+    return StreamBuilder<List<PoopModel>>(
+      stream: databaseService.getUserPoops(userId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return Center(
+            child: Text(
+              'Error: ${snapshot.error}',
+              style: TextStyle(color: AppTheme.errorColor),
+            ),
+          );
+        }
+
+        final poops = snapshot.data ?? [];
+
+        if (poops.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.assignment_outlined,
+                  size: 72,
+                  color: AppTheme.textSecondaryColor.withOpacity(0.5),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'No poops yet',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: AppTheme.textSecondaryColor,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Tap the + button to add your first poop',
+                  style: TextStyle(
+                    color: AppTheme.textSecondaryColor,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: poops.length,
+          itemBuilder: (context, index) {
+            return PoopCard(poop: poops[index]);
+          },
+        );
+      },
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Sign Out'),
+          content: const Text('Are you sure you want to sign out?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Provider.of<AuthService>(context, listen: false).signOut();
+              },
+              child: Text(
+                'Sign Out',
+                style: TextStyle(color: AppTheme.errorColor),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
