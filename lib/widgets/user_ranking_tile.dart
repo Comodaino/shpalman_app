@@ -5,10 +5,12 @@ import '../theme/app_theme.dart';
 class UserRankingTile extends StatelessWidget {
   final UserModel user;
   final int rank;
+  final int count;
 
   const UserRankingTile({
     Key? key,
     required this.user,
+    required this.count,
     required this.rank,
   }) : super(key: key);
 
@@ -49,7 +51,7 @@ class UserRankingTile extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
           ),
           child: Text(
-            '${user.poopCount} actions',
+            '$count actions',
             style: TextStyle(
               color: AppTheme.primaryColor,
               fontWeight: FontWeight.bold,

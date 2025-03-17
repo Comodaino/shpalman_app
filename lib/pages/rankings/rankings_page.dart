@@ -27,7 +27,7 @@ class RankingsPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Today\'s Rankings',
+                  'Today\'s Top Shitters',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: AppTheme.primaryColor,
@@ -44,7 +44,7 @@ class RankingsPage extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: StreamBuilder<List<UserModel>>(
+            child: StreamBuilder<List<Map<UserModel, int>>>(
               stream: databaseService.getTopUsers(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -76,7 +76,7 @@ class RankingsPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'No actions recorded today',
+                          'No shit!',
                           style: TextStyle(
                             fontSize: 18,
                             color: AppTheme.textSecondaryColor,
@@ -84,7 +84,7 @@ class RankingsPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Be the first to add an action!',
+                          'Become the first shitter!',
                           style: TextStyle(
                             color: AppTheme.textSecondaryColor,
                           ),
@@ -99,7 +99,8 @@ class RankingsPage extends StatelessWidget {
                   itemCount: users.length,
                   itemBuilder: (context, index) {
                     return UserRankingTile(
-                      user: users[index],
+                      user: users[index].keys.first,
+                      count: users[index].values.first,
                       rank: index + 1,
                     );
                   },

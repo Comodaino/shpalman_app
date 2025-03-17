@@ -74,13 +74,13 @@ class _LoginPageState extends State<LoginPage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const Icon(
-                    Icons.trending_up_rounded,
+                    Icons.album_sharp,
                     size: 80,
                     color: AppTheme.primaryColor,
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    'Action Tracker',
+                    'Shpalman app',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,

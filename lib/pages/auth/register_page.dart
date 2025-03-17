@@ -82,7 +82,7 @@ class _RegisterPageState extends State<RegisterPage> {
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
     Text(
-    'Join Action Tracker',
+    'Join Shpalman app and start shitting yourself!',
     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
     fontWeight: FontWeight.bold,
     color: AppTheme.primaryColor,
@@ -90,7 +90,7 @@ class _RegisterPageState extends State<RegisterPage> {
     ),
     const SizedBox(height: 8),
     Text(
-    'Create an account to track your actions and compete with others',
+    'Create an account to track your shits and compete with others',
     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
     color: AppTheme.textSecondaryColor,
     ),

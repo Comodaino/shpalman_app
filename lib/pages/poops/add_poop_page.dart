@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../models/user_model.dart';
 import '../../utils/auth_service.dart';
 import '../../utils/database.dart';
 import '../../theme/app_theme.dart';
@@ -44,10 +45,11 @@ class _AddActionPageState extends State<AddActionPage> {
         );
         return;
       }
+      final UserModel localUser = await databaseService.getUserFromMail(user.email?? 'null');
 
       await databaseService.addPoop(
-        user.uid,
-        user.displayName ?? 'User',
+        localUser.uid,
+        localUser.displayName,
         description: _descriptionController.text.trim(),
       );
 

@@ -36,7 +36,7 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Action Tracker'),
+        title: const Text('Shpalman app'),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -44,7 +44,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: _buildBody(user.uid, user.displayName ?? 'User'),
+      body: _buildBody(),
       floatingActionButton: _selectedIndex == 0
           ? FloatingActionButton(
         backgroundColor: AppTheme.primaryColor,
@@ -69,7 +69,7 @@ class _HomePageState extends State<HomePage> {
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.list),
-            label: 'My Actions',
+            label: 'Today\'s shits',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.leaderboard),
@@ -81,22 +81,22 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildBody(String userId, String displayName) {
+  Widget _buildBody() {
     switch (_selectedIndex) {
       case 0:
-        return _buildMyActions(userId);
+        return _buildMyActions();
       case 1:
         return const RankingsPage();
       default:
-        return _buildMyActions(userId);
+        return _buildMyActions();
     }
   }
 
-  Widget _buildMyActions(String userId) {
+  Widget _buildMyActions() {
     final databaseService = Provider.of<DatabaseService>(context);
 
     return StreamBuilder<List<PoopModel>>(
-      stream: databaseService.getUserPoops(userId),
+      stream: databaseService.getPoops(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
