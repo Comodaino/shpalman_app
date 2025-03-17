@@ -4,10 +4,13 @@ import 'package:provider/provider.dart';
 import 'app.dart';
 import 'utils/auth_service.dart';
 import 'utils/database.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   runApp(
     MultiProvider(

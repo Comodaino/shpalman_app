@@ -4,15 +4,15 @@ class UserModel {
   final String uid;
   final String email;
   final String displayName;
-  final int actionCount;
-  final DateTime? lastActionTime;
+  final int poopCount;
+  final DateTime? lastPoopTime;
 
   UserModel({
     required this.uid,
     required this.email,
     required this.displayName,
-    this.actionCount = 0,
-    this.lastActionTime,
+    this.poopCount = 0,
+    this.lastPoopTime,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -20,9 +20,9 @@ class UserModel {
       uid: json['uid'] ?? '',
       email: json['email'] ?? '',
       displayName: json['displayName'] ?? '',
-      actionCount: json['actionCount'] ?? 0,
-      lastActionTime: json['lastActionTime'] != null
-          ? (json['lastActionTime'] as Timestamp).toDate()
+      poopCount: json['poopCount'] ?? 0,
+      lastPoopTime: json['lastPoopTime'] != null
+          ? (json['lastPoopTime'] as Timestamp).toDate()
           : null,
     );
   }
@@ -32,8 +32,8 @@ class UserModel {
       'uid': uid,
       'email': email,
       'displayName': displayName,
-      'actionCount': actionCount,
-      'lastActionTime': lastActionTime,
+      'poopCount': poopCount,
+      'lastPoopTime': lastPoopTime,
     };
   }
 
@@ -41,15 +41,15 @@ class UserModel {
     String? uid,
     String? email,
     String? displayName,
-    int? actionCount,
-    DateTime? lastActionTime,
+    int? poopCount,
+    DateTime? lastPoopTime,
   }) {
     return UserModel(
       uid: uid ?? this.uid,
       email: email ?? this.email,
       displayName: displayName ?? this.displayName,
-      actionCount: actionCount ?? this.actionCount,
-      lastActionTime: lastActionTime ?? this.lastActionTime,
+      poopCount: poopCount ?? this.poopCount,
+      lastPoopTime: lastPoopTime ?? this.lastPoopTime,
     );
   }
 }

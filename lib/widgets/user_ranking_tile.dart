@@ -49,7 +49,7 @@ class UserRankingTile extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
           ),
           child: Text(
-            '${user.actionCount} actions',
+            '${user.poopCount} actions',
             style: TextStyle(
               color: AppTheme.primaryColor,
               fontWeight: FontWeight.bold,

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "491814430851",
+    "project_id": "shpalman-app",
+    "storage_bucket": "shpalman-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:491814430851:android:be3220ae088018021a93b6",
+        "android_client_info": {
+          "package_name": "com.example.shpalman_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyApTaFOTSj1PbpjLiN_Col3_NNi34fM6t4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

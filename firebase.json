@@ -1,6 +1,1 @@
-{
-  "firestore": {
-    "rules": "firestore.rules",
-    "indexes": "firestore.indexes.json"
-  }
-}
+{"firestore":{"rules":"firestore.rules","indexes":"firestore.indexes.json"},"flutter":{"platforms":{"android":{"default":{"projectId":"shpalman-app","appId":"1:491814430851:android:be3220ae088018021a93b6","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"shpalman-app","configurations":{"android":"1:491814430851:android:be3220ae088018021a93b6","ios":"1:491814430851:ios:605db9907a466b181a93b6","macos":"1:491814430851:ios:605db9907a466b181a93b6","web":"1:491814430851:web:1e66f4fd306bf61d1a93b6","windows":"1:491814430851:web:a7a127aa3f6115141a93b6"}}}}}}

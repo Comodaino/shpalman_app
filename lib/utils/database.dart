@@ -9,7 +9,7 @@ class DatabaseService {
   final CollectionReference usersCollection =
   FirebaseFirestore.instance.collection('users');
   final CollectionReference PoopsCollection =
-  FirebaseFirestore.instance.collection('Poops');
+  FirebaseFirestore.instance.collection('poops');
 
   // Add a new Poop
   Future<void> addPoop(String userId, String userDisplayName, {String description = ''}) async {
@@ -24,9 +24,6 @@ class DatabaseService {
 
     // Add to Poops collection
     await PoopsCollection.add(PoopData);
-
-    // Update user's Poop count
-    await _updateUserPoopCount(userId);
   }
 
   // Update user's Poop count in a transPoop
@@ -48,7 +45,7 @@ class DatabaseService {
 
       // Update user document
       transPoop.update(userDocRef, {
-        'PoopCount': todayPoopsQuery.count,
+        'poopCount': todayPoopsQuery.count,
         'lastPoopTime': FieldValue.serverTimestamp(),
       });
     });
@@ -73,22 +70,53 @@ class DatabaseService {
   }
 
 
-  // Get top users for today's Poops
   Stream<List<UserModel>> getTopUsers({int limit = 10}) {
     // Get the current date (midnight)
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
 
-    return usersCollection
-        .where('lastPoopTime', isGreaterThanOrEqualTo: Timestamp.fromDate(today))
-        .orderBy('lastPoopTime', descending: true)
-        .orderBy('PoopCount', descending: true)
-        .limit(limit)
-        .snapshots()
-        .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        return UserModel.fromJson(doc.data() as Map<String, dynamic>);
-      }).toList();
+    // This is the improved version that performs a "join" between collections
+    return usersCollection.snapshots().asyncMap((usersSnapshot) async {
+      List<Future<UserModel>> userFutures = [];
+
+      for (var userDoc in usersSnapshot.docs) {
+        userFutures.add(_getUserWithPoopCount(userDoc, today));
+      }
+
+      // Wait for all user data with poop counts to be processed
+      List<UserModel> usersWithActions = await Future.wait(userFutures);
+
+      // Filter out users with no poops today, sort by poop count, and limit the results
+      return usersWithActions
+          .where((user) => user.poopCount > 0)
+          .toList()
+        ..sort((a, b) => b.poopCount.compareTo(a.poopCount))
+        ..take(limit);
     });
+  }
+  Future<UserModel> _getUserWithPoopCount(
+      DocumentSnapshot userDoc,
+      DateTime today
+      ) async {
+    final userData = userDoc.data() as Map<String, dynamic>;
+    final userId = userDoc.id;
+
+    // Query poops collection to get accurate count for today
+    final poopsQuery = await PoopsCollection
+        .where('userId', isEqualTo: userId)
+        .where('timestamp', isGreaterThanOrEqualTo: Timestamp.fromDate(today))
+        .count()
+        .get();
+
+    // Create user model with the accurate poop count
+    return UserModel(
+      uid: userId,
+      email: userData['email'] ?? '',
+      displayName: userData['displayName'] ?? '',
+      poopCount: poopsQuery.count ?? 0,
+      lastPoopTime: userData['lastPoopTime'] != null
+          ? (userData['lastPoopTime'] as Timestamp).toDate()
+          : null,
+    );
   }
 }

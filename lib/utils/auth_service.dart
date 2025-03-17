@@ -52,7 +52,7 @@ class AuthService {
       'uid': uid,
       'email': email,
       'displayName': displayName,
-      'actionCount': 0,
+      'poopCount': 0,
       'createdAt': FieldValue.serverTimestamp(),
     });
   }
