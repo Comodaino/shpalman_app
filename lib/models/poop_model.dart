@@ -6,6 +6,7 @@ class PoopModel {
   final String userDisplayName;
   final DateTime timestamp;
   final String description;
+  final String url;
 
   PoopModel({
     required this.id,
@@ -13,6 +14,7 @@ class PoopModel {
     required this.userDisplayName,
     required this.timestamp,
     this.description = '',
+    required this.url,
   });
 
   factory PoopModel.fromJson(Map<String, dynamic> json, String docId) {
@@ -22,6 +24,7 @@ class PoopModel {
       userDisplayName: json['userDisplayName'] ?? '',
       timestamp: (json['timestamp'] as Timestamp).toDate(),
       description: json['description'] ?? '',
+      url: json['url'] ?? '',
     );
   }
 
@@ -31,6 +34,7 @@ class PoopModel {
       'userDisplayName': userDisplayName,
       'timestamp': Timestamp.fromDate(timestamp),
       'description': description,
+      'url': url,
     };
   }
 }

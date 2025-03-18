@@ -13,7 +13,7 @@ class DatabaseService {
   FirebaseFirestore.instance.collection('poops');
 
   // Add a new Poop
-  Future<void> addPoop(String userId, String userDisplayName, {String description = ''}) async {
+  Future<void> addPoop(String userId, String userDisplayName, String url, {String description = ''}) async {
     // Create Poop document
     final PoopData = PoopModel(
       id: '',
@@ -21,6 +21,7 @@ class DatabaseService {
       userDisplayName: userDisplayName,
       timestamp: DateTime.now(),
       description: description,
+      url: url,
     ).toJson();
     // Add to Poops collection
     await PoopsCollection.add(PoopData);
@@ -136,5 +137,16 @@ class DatabaseService {
         .get();
 
     return {user: poopsQuery.count ?? 5};
+  }
+
+  Future<void> addPoopWithImage(String uid, String displayName, {required String description, required String base64Image}) async {
+    // Your existing code to add a poop, now including the image
+    await FirebaseFirestore.instance.collection('poops').add({
+      'uid': uid,
+      'displayName': displayName,
+      'description': description,
+      'image': base64Image,
+      'timestamp': FieldValue.serverTimestamp(),
+    });
   }
 }

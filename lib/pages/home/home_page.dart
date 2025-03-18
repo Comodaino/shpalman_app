@@ -52,7 +52,7 @@ class _HomePageState extends State<HomePage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const AddActionPage(),
+              builder: (context) => const AddPoopPage(),
             ),
           );
         },
@@ -84,15 +84,15 @@ class _HomePageState extends State<HomePage> {
   Widget _buildBody() {
     switch (_selectedIndex) {
       case 0:
-        return _buildMyActions();
+        return _buildMyPoops();
       case 1:
         return const RankingsPage();
       default:
-        return _buildMyActions();
+        return _buildMyPoops();
     }
   }
 
-  Widget _buildMyActions() {
+  Widget _buildMyPoops() {
     final databaseService = Provider.of<DatabaseService>(context);
 
     return StreamBuilder<List<PoopModel>>(
