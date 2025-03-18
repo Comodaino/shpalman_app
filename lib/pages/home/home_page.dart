@@ -86,7 +86,7 @@ class _HomePageState extends State<HomePage> {
       case 0:
         return _buildMyPoops();
       case 1:
-        return const RankingsPage();
+        return RankingsPage();
       default:
         return _buildMyPoops();
     }

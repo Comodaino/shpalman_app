@@ -53,3 +53,10 @@ class UserModel {
     );
   }
 }
+
+enum RankingType {
+  today,
+  week,
+  month,
+  allTime,
+}

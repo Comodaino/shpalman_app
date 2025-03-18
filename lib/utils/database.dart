@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../models/poop_model.dart';
 import '../models/user_model.dart';
 
@@ -100,7 +99,7 @@ class DatabaseService {
 
 
 
-  Stream<List<Map<UserModel, int>>> getTopUsers({int limit = 10}) {
+  Stream<List<Map<UserModel, int>>> getTopUsers({int limit = 3, RankingType rankingType = RankingType.today}) {
     // Get the current date (midnight)
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -110,11 +109,10 @@ class DatabaseService {
       List<Future<Map<UserModel, int>>> userPoopCounts = [];
 
       for (var userDoc in usersSnapshot.docs) {
-        userPoopCounts.add( _getUserWithPoopCount(userDoc, today));
+        userPoopCounts.add( _getUserWithPoopCount(userDoc, today, rankingType));
       }
 
       List<Map<UserModel, int>> usersWithCount = await Future.wait(userPoopCounts);
-      usersWithCount.sort((a, b) => b.values.last.compareTo(a.values.last));
 
       // Filter out users with no poops today, sort by poop count, and limit the results
       return usersWithCount
@@ -122,17 +120,36 @@ class DatabaseService {
         ..take(limit);
     });
   }
+
+
   Future<Map<UserModel, int>> _getUserWithPoopCount(
       DocumentSnapshot userDoc,
-      DateTime today
+      DateTime today,
+      RankingType rankingType,
       ) async {
     final user = UserModel.fromJson(userDoc.data() as Map<String, dynamic>);
     final userId = userDoc.id;
+    Timestamp limit = Timestamp.fromDate(today);
+
+    switch(rankingType){
+      case RankingType.today:
+        limit = Timestamp.fromDate(today);
+        break;
+      case RankingType.week:
+        limit = Timestamp.fromDate(today.subtract(Duration(days: today.weekday - 1)));
+        break;
+      case RankingType.month:
+        limit = Timestamp.fromDate(DateTime(today.year, today.month, 1));
+        break;
+      case RankingType.allTime:
+        limit = Timestamp.fromDate(DateTime(1970));
+        break;
+    }
 
     // Query poops collection to get accurate count for today
     final poopsQuery = await PoopsCollection
         .where('userId', isEqualTo: userId)
-        .where('timestamp', isGreaterThanOrEqualTo: Timestamp.fromDate(today))
+        .where('timestamp', isGreaterThanOrEqualTo: limit)
         .count()
         .get();
 
