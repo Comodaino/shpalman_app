@@ -7,7 +7,7 @@
 *.env
 .buildlog/
 .history
-
+lib/firebase_options.dart
 
 
 # Flutter repo-specific
