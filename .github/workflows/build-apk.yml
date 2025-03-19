@@ -29,7 +29,7 @@ jobs:
         run: flutter pub get
 
       - name: Set firebase options
-        run: echo "${{secrets.FIREBASE_OPTIONS}}" > lib/firebase_options.dart
+        run: sh -c 'echo "${{ secrets.FIREBASE_OPTIONS }}" > lib/firebase_options.dart'
 
       - name: Set up Environment Variables
         run: |
