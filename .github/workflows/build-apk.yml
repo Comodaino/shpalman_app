@@ -28,6 +28,14 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
+      - name: Set firebase options
+        run: |
+          cat <<EOF > lib/firebase_options.dart
+          $FIREBASE_OPTION
+          EOF
+        env:
+          FIREBASE_OPTION: ${{ secrets.FIREBASE_OPTIONS }}
+
       - name: Set up Environment Variables
         run: |
           echo "CLOUDINARY_UPLOAD_PRESET=${{ secrets.CLOUDINARY_UPLOAD_PRESET }}" >> $GITHUB_ENV
