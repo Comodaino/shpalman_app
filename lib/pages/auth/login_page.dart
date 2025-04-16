@@ -69,105 +69,109 @@ class _LoginPageState extends State<LoginPage> {
             padding: const EdgeInsets.all(24),
             child: Form(
               key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Icon(
-                    Icons.album_sharp,
-                    size: 80,
-                    color: AppTheme.primaryColor,
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    'Shpalman app',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+              child: SizedBox(
+                width: 400,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Icon(
+                      Icons.album_sharp,
+                      size: 80,
                       color: AppTheme.primaryColor,
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Sign in to your account',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: AppTheme.textSecondaryColor,
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  TextFormField(
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(
-                      labelText: 'Email',
-                      prefixIcon: Icon(Icons.email_outlined),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
-                      }
-                      if (!value.contains('@') || !value.contains('.')) {
-                        return 'Please enter a valid email';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    decoration: const InputDecoration(
-                      labelText: 'Password',
-                      prefixIcon: Icon(Icons.lock_outline),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
-                      }
-                      if (value.length < 6) {
-                        return 'Password must be at least 6 characters';
-                      }
-                      return null;
-                    },
-                  ),
-                  if (_errorMessage.isNotEmpty) ...[
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 24),
                     Text(
-                      _errorMessage,
-                      style: TextStyle(
-                        color: AppTheme.errorColor,
-                        fontSize: 14,
+                      'Shpalman app',
+                      textAlign: TextAlign.center,
+                      style:
+                          Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.primaryColor,
+                              ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Sign in to your account',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: AppTheme.textSecondaryColor,
+                          ),
+                    ),
+                    const SizedBox(height: 32),
+                    TextFormField(
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: const InputDecoration(
+                        labelText: 'Email',
+                        prefixIcon: Icon(Icons.email_outlined),
                       ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your email';
+                        }
+                        if (!value.contains('@') || !value.contains('.')) {
+                          return 'Please enter a valid email';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _passwordController,
+                      obscureText: true,
+                      decoration: const InputDecoration(
+                        labelText: 'Password',
+                        prefixIcon: Icon(Icons.lock_outline),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your password';
+                        }
+                        if (value.length < 6) {
+                          return 'Password must be at least 6 characters';
+                        }
+                        return null;
+                      },
+                    ),
+                    if (_errorMessage.isNotEmpty) ...[
+                      const SizedBox(height: 16),
+                      Text(
+                        _errorMessage,
+                        style: TextStyle(
+                          color: AppTheme.errorColor,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: _isLoading ? null : _signIn,
+                      child: _isLoading
+                          ? const SizedBox(
+                              height: 24,
+                              width: 24,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : const Text('Sign In'),
+                    ),
+                    const SizedBox(height: 16),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const RegisterPage(),
+                          ),
+                        );
+                      },
+                      child: const Text('Don\'t have an account? Sign Up'),
                     ),
                   ],
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: _isLoading ? null : _signIn,
-                    child: _isLoading
-                        ? const SizedBox(
-                      height: 24,
-                      width: 24,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2,
-                      ),
-                    )
-                        : const Text('Sign In'),
-                  ),
-                  const SizedBox(height: 16),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const RegisterPage(),
-                        ),
-                      );
-                    },
-                    child: const Text('Don\'t have an account? Sign Up'),
-                  ),
-                ],
+                ),
               ),
             ),
           ),

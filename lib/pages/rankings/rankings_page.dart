@@ -25,107 +25,116 @@ class _RankingsPageState extends State<RankingsPage> {
     final dateFormat = DateFormat.yMMMMd();
 
     return Scaffold(
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      getRankingTitle(_rankingType),
-                      style:
-                      Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.primaryColor,
+      body: Center(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        getRankingTitle(_rankingType),
+                        style:
+                            Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.primaryColor,
+                                ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'For ${dateFormat.format(today)}',
-                      style: TextStyle(
-                        color: AppTheme.textSecondaryColor,
+                      const SizedBox(height: 4),
+                      Text(
+                        'For ${dateFormat.format(today)}',
+                        style: TextStyle(
+                          color: AppTheme.textSecondaryColor,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const Spacer(),
-                IconButton(
-                  icon: Icon(Icons.filter_list),
-                  onPressed: () => _showRankingTypeOverlay(context),
-                ),
-              ],
+                    ],
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    icon: Icon(Icons.filter_list),
+                    onPressed: () => _showRankingTypeOverlay(context),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: StreamBuilder<List<Map<UserModel, int>>>(
-              stream: databaseService.getTopUsers(rankingType: _rankingType),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
+            Expanded(
+              child: Center(
+                child: SizedBox(
+                  width: 700,
+                  child: StreamBuilder<List<Map<UserModel, int>>>(
+                    stream:
+                        databaseService.getTopUsers(rankingType: _rankingType),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
 
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Text(
-                      'Error: ${snapshot.error}',
-                      style: TextStyle(color: AppTheme.errorColor),
-                    ),
-                  );
-                }
-
-                final users = snapshot.data ?? [];
-
-                if (users.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.leaderboard_outlined,
-                          size: 72,
-                          color: AppTheme.textSecondaryColor.withOpacity(0.5),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'No shit!',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: AppTheme.textSecondaryColor,
+                      if (snapshot.hasError) {
+                        return Center(
+                          child: Text(
+                            'Error: ${snapshot.error}',
+                            style: TextStyle(color: AppTheme.errorColor),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Become the first shitter!',
-                          style: TextStyle(
-                            color: AppTheme.textSecondaryColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }
+                        );
+                      }
 
-                return ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: users.length,
-                  itemBuilder: (context, index) {
-                    return UserRankingTile(
-                      user: users[index].keys.first,
-                      count: users[index].values.first,
-                      rank: index + 1,
-                    );
-                  },
-                );
-              },
+                      final users = snapshot.data ?? [];
+
+                      if (users.isEmpty) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.leaderboard_outlined,
+                                size: 72,
+                                color: AppTheme.textSecondaryColor
+                                    .withOpacity(0.5),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'No shit!',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: AppTheme.textSecondaryColor,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Become the first shitter!',
+                                style: TextStyle(
+                                  color: AppTheme.textSecondaryColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+
+                      return ListView.builder(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: users.length,
+                        itemBuilder: (context, index) {
+                          return UserRankingTile(
+                            user: users[index].keys.first,
+                            count: users[index].values.first,
+                            rank: index + 1,
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -171,6 +180,4 @@ String getRankingTitle(RankingType rankingType) {
     case RankingType.allTime:
       return 'All Time Top Shitters';
   }
-
 }
-

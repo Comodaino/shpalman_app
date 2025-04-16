@@ -5,6 +5,7 @@
 *.pyc
 *.swp
 *.env
+assets/.env
 .buildlog/
 .history
 lib/firebase_options.dart

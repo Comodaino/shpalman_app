@@ -166,4 +166,12 @@ class DatabaseService {
       'timestamp': FieldValue.serverTimestamp(),
     });
   }
+
+  Future<void> updatePoop(String poopId, String imageUrl, {required String description}) {
+    // Update the poop document with the new description
+    return PoopsCollection.doc(poopId).update({
+      'url': imageUrl,
+      'description': description,
+    });
+  }
 }

@@ -28,6 +28,10 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
+      - name: Create env File
+        run: |
+          cat ' ' > assets/env.dart
+
       - name: Set firebase options
         run: |
           cat <<EOF > lib/firebase_options.dart

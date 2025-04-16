@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../models/user_model.dart';
 import '../../utils/auth_service.dart';
 import '../../utils/database.dart';
 import '../../models/poop_model.dart';
@@ -19,11 +21,13 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
+  late final User user;
 
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
-    final user = authService.currentUser;
+    user = authService.currentUser!;
+
 
     if (user == null) {
       // This should not happen, but just in case
@@ -47,17 +51,17 @@ class _HomePageState extends State<HomePage> {
       body: _buildBody(),
       floatingActionButton: _selectedIndex == 0
           ? FloatingActionButton(
-        backgroundColor: AppTheme.primaryColor,
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const AddPoopPage(),
-            ),
-          );
-        },
-        child: const Icon(Icons.add),
-      )
+              backgroundColor: AppTheme.primaryColor,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AddPoopPage(),
+                  ),
+                );
+              },
+              child: const Icon(Icons.add),
+            )
           : null,
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
@@ -145,12 +149,17 @@ class _HomePageState extends State<HomePage> {
           );
         }
 
-        return ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: poops.length,
-          itemBuilder: (context, index) {
-            return PoopCard(poop: poops[index]);
-          },
+        return Center(
+          child: SizedBox(
+            width: 700,
+            child: ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: poops.length,
+              itemBuilder: (context, index) {
+                return PoopCard(poop: poops[index], user: user);
+              },
+            ),
+          ),
         );
       },
     );
