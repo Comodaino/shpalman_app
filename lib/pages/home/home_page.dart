@@ -21,7 +21,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
-  late final User user;
+  late User user;
 
   @override
   Widget build(BuildContext context) {
