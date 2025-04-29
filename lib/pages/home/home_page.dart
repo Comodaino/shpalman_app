@@ -22,12 +22,12 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   late User user;
+  bool showImages = false; // New variable to control image display
 
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
     user = authService.currentUser!;
-
 
     if (user == null) {
       // This should not happen, but just in case
@@ -42,6 +42,27 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text('Shpalman app'),
         actions: [
+          // Toggle button for showing/hiding images
+          Row(
+            children: [
+              Text(
+                'Images',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppTheme.textSecondaryColor,
+                ),
+              ),
+              Switch(
+                value: showImages,
+                activeColor: AppTheme.primaryColor,
+                onChanged: (value) {
+                  setState(() {
+                    showImages = value;
+                  });
+                },
+              ),
+            ],
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () => _showLogoutDialog(context),
@@ -51,17 +72,17 @@ class _HomePageState extends State<HomePage> {
       body: _buildBody(),
       floatingActionButton: _selectedIndex == 0
           ? FloatingActionButton(
-              backgroundColor: AppTheme.primaryColor,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AddPoopPage(),
-                  ),
-                );
-              },
-              child: const Icon(Icons.add),
-            )
+        backgroundColor: AppTheme.primaryColor,
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const AddPoopPage(),
+            ),
+          );
+        },
+        child: const Icon(Icons.add),
+      )
           : null,
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
@@ -156,7 +177,11 @@ class _HomePageState extends State<HomePage> {
               padding: const EdgeInsets.all(16),
               itemCount: poops.length,
               itemBuilder: (context, index) {
-                return PoopCard(poop: poops[index], user: user);
+                return PoopCard(
+                  poop: poops[index],
+                  user: user,
+                  showImages: showImages,
+                );
               },
             ),
           ),

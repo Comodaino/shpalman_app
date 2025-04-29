@@ -8,8 +8,9 @@ import '../theme/app_theme.dart';
 class PoopCard extends StatelessWidget {
   final PoopModel poop;
   final User user;
+  final bool showImages;
 
-  const PoopCard({Key? key, required this.poop, required this.user})
+  const PoopCard({Key? key, required this.poop, required this.user, required this.showImages})
       : super(key: key);
 
   @override
@@ -53,7 +54,7 @@ class PoopCard extends StatelessWidget {
                           ),
                         ),
                       ],
-                      if (poop.url.isNotEmpty)
+                      if (poop.url.isNotEmpty && showImages)
                         GestureDetector(
                           onTap: () => _showImageDialog(context, poop.url),
                           child: Image.network(
