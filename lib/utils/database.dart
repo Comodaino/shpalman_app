@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:geolocator/geolocator.dart';
 import '../models/poop_model.dart';
 import '../models/user_model.dart';
 
@@ -12,7 +13,7 @@ class DatabaseService {
   FirebaseFirestore.instance.collection('poops');
 
   // Add a new Poop
-  Future<void> addPoop(String userId, String userDisplayName, String url, {String description = ''}) async {
+  Future<void> addPoop(String userId, String userDisplayName, String url, {String description = '', Position? position}) async {
     // Create Poop document
     final PoopData = PoopModel(
       id: '',
@@ -21,6 +22,8 @@ class DatabaseService {
       timestamp: DateTime.now(),
       description: description,
       url: url,
+      lat: position?.latitude.toString(),
+      long: position?.longitude.toString()
     ).toJson();
     // Add to Poops collection
     await PoopsCollection.add(PoopData);
@@ -154,17 +157,6 @@ class DatabaseService {
         .get();
 
     return {user: poopsQuery.count ?? 5};
-  }
-
-  Future<void> addPoopWithImage(String uid, String displayName, {required String description, required String base64Image}) async {
-    // Your existing code to add a poop, now including the image
-    await FirebaseFirestore.instance.collection('poops').add({
-      'uid': uid,
-      'displayName': displayName,
-      'description': description,
-      'image': base64Image,
-      'timestamp': FieldValue.serverTimestamp(),
-    });
   }
 
   Future<void> updatePoop(String poopId, String imageUrl, {required String description}) {

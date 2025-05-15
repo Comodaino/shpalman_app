@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:geolocator/geolocator.dart';
 import '../../models/user_model.dart';
 import '../../utils/auth_service.dart';
 import '../../utils/database.dart';
@@ -11,11 +12,12 @@ import '../../utils/image_uploader.dart';
 
 class AddPoopPage extends StatefulWidget {
   static const String routeName = '/add-action';
+  Position? position = null;
 
-  const AddPoopPage({Key? key}) : super(key: key);
+  AddPoopPage({super.key, this.position});
 
   @override
-  _AddPoopPageState createState() => _AddPoopPageState();
+  State<AddPoopPage> createState() => _AddPoopPageState();
 }
 
 class _AddPoopPageState extends State<AddPoopPage> {
@@ -133,6 +135,7 @@ class _AddPoopPageState extends State<AddPoopPage> {
         localUser.displayName,
         imageUrl!,
         description: _descriptionController.text.trim(),
+        position: widget.position
       );
 
       if (mounted) {
