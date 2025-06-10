@@ -9,6 +9,7 @@ import '../../widgets/poop_card.dart';
 import '../../theme/app_theme.dart';
 import '../poops/add_poop_page.dart';
 import '../rankings/rankings_page.dart';
+import '../settings/settings.dart';
 
 class HomePage extends StatefulWidget {
   static const String routeName = '/home';
@@ -102,6 +103,10 @@ class _HomePageState extends State<HomePage> {
             icon: Icon(Icons.leaderboard),
             label: 'Rankings',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
+          )
         ],
         selectedItemColor: AppTheme.primaryColor,
       ),
@@ -114,6 +119,8 @@ class _HomePageState extends State<HomePage> {
         return _buildMyPoops();
       case 1:
         return RankingsPage();
+      case 2:
+        return ProfileSettingsPage();
       default:
         return _buildMyPoops();
     }

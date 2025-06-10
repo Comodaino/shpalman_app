@@ -9,6 +9,7 @@ class PoopModel {
   final String url;
   final String? lat;
   final String? long;
+  final List<String> groups;
 
   PoopModel({
     required this.id,
@@ -18,7 +19,8 @@ class PoopModel {
     this.description = '',
     required this.url,
     this.lat,
-    this.long
+    this.long,
+    required this.groups
   });
 
   factory PoopModel.fromJson(Map<String, dynamic> json, String docId) {
@@ -31,6 +33,9 @@ class PoopModel {
       url: json['url'] ?? '',
       lat: json['lat'],
       long: json['lat'],
+      groups: json['groups'] != null
+          ? List<String>.from(json['groups'])
+          : [],
     );
   }
 
@@ -42,7 +47,8 @@ class PoopModel {
       'description': description,
       'url': url,
       'lat': lat,
-      'long': long
+      'long': long,
+      'groups' : groups
     };
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../models/user_model.dart';
 import '../../utils/auth_service.dart';
 import '../../utils/database.dart';
@@ -130,10 +131,13 @@ class _AddPoopPageState extends State<AddPoopPage> {
         imageUrl = await _uploadImage();
       }
 
-      await databaseService.addPoop(
+      List<String> groupsIds = await databaseService.getGroupsFromUserId(localUser.uid);
+
+      databaseService.addPoop(
         localUser.uid,
         localUser.displayName,
         imageUrl!,
+        groupsIds,
         description: _descriptionController.text.trim(),
         position: widget.position
       );

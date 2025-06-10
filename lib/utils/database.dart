@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
+import 'dart:math';
+import '../models/poop_model.dart';
 import '../models/poop_model.dart';
 import '../models/user_model.dart';
 
@@ -11,9 +13,13 @@ class DatabaseService {
   FirebaseFirestore.instance.collection('users');
   final CollectionReference PoopsCollection =
   FirebaseFirestore.instance.collection('poops');
+  final CollectionReference GroupsUserPairCollection =
+  FirebaseFirestore.instance.collection('groupsUserPair');
+  final CollectionReference GroupsCollection =
+  FirebaseFirestore.instance.collection('groups');
 
   // Add a new Poop
-  Future<void> addPoop(String userId, String userDisplayName, String url, {String description = '', Position? position}) async {
+  Future<void> addPoop(String userId, String userDisplayName, String url, List<String> groups, {String description = '', Position? position}) async {
     // Create Poop document
     final PoopData = PoopModel(
       id: '',
@@ -23,7 +29,8 @@ class DatabaseService {
       description: description,
       url: url,
       lat: position?.latitude.toString(),
-      long: position?.longitude.toString()
+      long: position?.longitude.toString(),
+      groups: []
     ).toJson();
     // Add to Poops collection
     await PoopsCollection.add(PoopData);
@@ -166,4 +173,64 @@ class DatabaseService {
       'description': description,
     });
   }
+
+  Future<bool> addToGroup(String groupId, String userId) async {
+    return await GroupsUserPairCollection.add({
+      'groupId': groupId,
+      'userId': userId,
+    }).then((value) {
+      return true;
+    }).catchError((error) {
+      print("Failed to add user to group: $error");
+      return false;
+    });
+  }
+
+  Future<String?> createGroup(String groupName) async {
+    String groupId = generateRandomString(10); // Generate a random ID for the group
+    return await GroupsCollection.add({
+      'name': groupName,
+      'groupId': groupId,
+    }).then((value) {
+      print("What the hell??? $groupId");
+      return groupId; // Return the new group's ID
+    }).catchError((error) {
+      print("Failed to create group: $error");
+      return null; // Return null if creation fails
+    });
+  }
+
+  Future<List<String>> getGroupsFromUserId(String userId) async {
+    return await GroupsUserPairCollection.where('userId', isEqualTo: userId).get().then((value) async {
+      List<String> groupIds = [];
+      List<String> groupNames = [];
+      for (var doc in value.docs) {
+        groupIds.add(doc['groupId'] as String); // Collect group IDs
+      }
+      for (var id in groupIds){
+        groupNames.add(await getGroupName(id));
+      }
+      return groupIds; // Return the list of group IDs
+    }).catchError((error) {
+      print("Failed to get groups for user: $error");
+      return []; // Return an empty list if there's an error
+    });
+  }
+
+  Future<String> getGroupName(String groupId) async {
+    return await GroupsCollection.where('groupId', isEqualTo: groupId).get().then((value) async {
+      return value.docs[0]['name'] as String;
+    }).catchError((error) {
+      print("Failed to get group name: $error");
+      return '';
+    });
+  }
+}
+
+String generateRandomString(int lengthOfString){
+  final random = Random();
+  const allChars='AaBbCcDdlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1EeFfGgHhIiJjKkL234567890';
+  final randomString = List.generate(lengthOfString,
+          (index) => allChars[random.nextInt(allChars.length)]).join();
+  return randomString;    // return the generated string
 }

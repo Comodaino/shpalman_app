@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Action Tracker',
+      title: 'Shpalman App',
       theme: AppTheme.darkTheme,
       debugShowCheckedModeBanner: false,
       home: const AuthWrapper(),
