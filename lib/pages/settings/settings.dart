@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../utils/auth_service.dart';
 import '../../utils/database.dart';
-import 'dart:convert';
 
 class ProfileSettingsPage extends StatefulWidget {
   const ProfileSettingsPage({Key? key}) : super(key: key);
@@ -16,7 +15,8 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
   final TextEditingController _groupCodeController = TextEditingController();
   final TextEditingController _groupNameController = TextEditingController();
   bool _notificationsEnabled = false;
-  List<String> _joinedGroups = [];
+  bool _imagesEnabled = false;
+  List<Map<String,dynamic>> _joinedGroups = [];
   bool _isLoadingJoin = false;
   bool _isLoadingCreate = false;
   bool _isLoadingGroups = false;
@@ -41,6 +41,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _notificationsEnabled = prefs.getBool('notifications_enabled') ?? false;
+      _imagesEnabled = prefs.getBool('images_enabled') ?? false;
     });
     await _loadGroups();
   }
@@ -79,6 +80,14 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
     await prefs.setBool('notifications_enabled', value);
     setState(() {
       _notificationsEnabled = value;
+    });
+  }
+
+  Future<void> _saveImageSetting(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('images_enabled', value);
+    setState(() {
+      _imagesEnabled = value;
     });
   }
 
@@ -143,6 +152,8 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
   }
 
   Future<void> _createGroup() async {
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final user = authService.currentUser;
     final databaseService = Provider.of<DatabaseService>(context, listen: false);
     final groupName = _groupNameController.text.trim();
 
@@ -160,7 +171,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
     });
 
     try {
-      final String? groupId = await databaseService.createGroup(groupName);
+      final String? groupId = await databaseService.createGroup(groupName, user!.uid);
 
       setState(() {
         _isLoadingCreate = false;
@@ -248,15 +259,18 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
     }
   }
 
-  Future<void> _leaveGroup(String groupCode) async {
-    // Here you would typically call a database method to leave the group
-    // For now, we'll just refresh the groups list
+  Future<void> _leaveGroup(Map<String,dynamic> group) async {
+    final databaseService = Provider.of<DatabaseService>(context, listen: false);
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final user = authService.currentUser;
+    databaseService.leaveGroup(group, user!.uid);
+
     await _loadGroups();
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Left group: $groupCode'),
+          content: Text('Left group: ${group['name']}'),
           backgroundColor: Colors.orange,
         ),
       );
@@ -267,7 +281,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile & Settings'),
+        title: const Text('Settings'),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -275,46 +289,6 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Profile Section
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.person, size: 24),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Profile',
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    const CircleAvatar(
-                      radius: 40,
-                      child: Icon(Icons.person, size: 40),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'User Name',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    Text(
-                      'user@example.com',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
             // Settings Section
             Card(
               child: Padding(
@@ -337,7 +311,21 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Enable Notifications',
+                          'Show Images',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        Switch(
+                          value: _imagesEnabled,
+                          onChanged: _saveImageSetting,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Enable Notifications (coming not soon)',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         Switch(
@@ -570,7 +558,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                             ],
                           ),
                           const SizedBox(height: 8),
-                          ..._joinedGroups.map((groupCode) {
+                          ..._joinedGroups.map((group) {
                             return Container(
                               margin: const EdgeInsets.only(bottom: 8),
                               padding: const EdgeInsets.all(12),
@@ -591,14 +579,14 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Text(
-                                      groupCode,
+                                      group['name'] ?? 'Unnamed Group',
                                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
                                   ),
                                   IconButton(
-                                    onPressed: () => _showLeaveGroupDialog(groupCode),
+                                    onPressed: () => _showLeaveGroupDialog(group),
                                     icon: const Icon(Icons.close),
                                     iconSize: 20,
                                     color: Theme.of(context).colorScheme.error,
@@ -620,13 +608,13 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
     );
   }
 
-  void _showLeaveGroupDialog(String groupCode) {
+  void _showLeaveGroupDialog(Map<String, dynamic> group) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Leave Group'),
-          content: Text('Are you sure you want to leave the group "$groupCode"?'),
+          content: Text('Are you sure you want to leave the group "${group['name']}"?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -635,7 +623,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                _leaveGroup(groupCode);
+                _leaveGroup(group);
               },
               style: TextButton.styleFrom(
                 foregroundColor: Theme.of(context).colorScheme.error,

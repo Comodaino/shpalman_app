@@ -131,13 +131,15 @@ class _AddPoopPageState extends State<AddPoopPage> {
         imageUrl = await _uploadImage();
       }
 
-      List<String> groupsIds = await databaseService.getGroupsFromUserId(localUser.uid);
+      List<Map<String,dynamic>> groups = await databaseService.getGroupsFromUserId(localUser.uid);
+      //extract group IDs from the list of maps
+      List groupsIds = groups.map((group) => group['groupId'] ?? '').toList();
 
       databaseService.addPoop(
         localUser.uid,
         localUser.displayName,
         imageUrl!,
-        groupsIds,
+        groupsIds as List<String>,
         description: _descriptionController.text.trim(),
         position: widget.position
       );

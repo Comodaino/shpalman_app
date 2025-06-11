@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../utils/auth_service.dart';
 import '../../utils/database.dart';
 import '../../models/poop_model.dart';
@@ -24,14 +25,24 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   late User user;
   late Position? position;
-  bool showImages = false; // New variable to control image display
+  bool _showImages = false; // New variable to control image display
 
   @override
   void initState() {
+    setShowImages();
+    print(_showImages);
     awaitPosition();
     super.initState();
   }
 
+
+void setShowImages() async {
+  final prefs = await SharedPreferences.getInstance();
+  final value = prefs.getBool('images_enabled') ?? false;
+  setState(() {
+    _showImages = value;
+  });
+}
   void awaitPosition() async {
     position = await _determinePosition();
   }
@@ -45,27 +56,6 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text('Shpalman app'),
         actions: [
-          // Toggle button for showing/hiding images
-          Row(
-            children: [
-              Text(
-                'Images',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppTheme.textSecondaryColor,
-                ),
-              ),
-              Switch(
-                value: showImages,
-                activeColor: AppTheme.primaryColor,
-                onChanged: (value) {
-                  setState(() {
-                    showImages = value;
-                  });
-                },
-              ),
-            ],
-          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () => _showLogoutDialog(context),
@@ -90,6 +80,7 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: (index) {
+          setShowImages();
           setState(() {
             _selectedIndex = index;
           });
@@ -128,9 +119,11 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildMyPoops() {
     final databaseService = Provider.of<DatabaseService>(context);
+    final authService = Provider.of<AuthService>(context);
+    user = authService.currentUser!;
 
-    return StreamBuilder<List<PoopModel>>(
-      stream: databaseService.getPoops(),
+    return FutureBuilder<List<PoopModel>>(
+      future: databaseService.getFilteredPoops(user.uid),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
@@ -189,7 +182,7 @@ class _HomePageState extends State<HomePage> {
                 return PoopCard(
                   poop: poops[index],
                   user: user,
-                  showImages: showImages,
+                  showImages: _showImages,
                 );
               },
             ),
